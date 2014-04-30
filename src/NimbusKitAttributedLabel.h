@@ -1,4 +1,4 @@
-/**
+/*
  Copyright (c) 2011-present, NimbusKit. All rights reserved.
  Originally created by Roger Chapman
 

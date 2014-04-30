@@ -1,4 +1,4 @@
-<!--dox @defgroup NimbusAttributedLabel NimbusKit Attributed Label -->
+<!--dox @defgroup NimbusKitAttributedLabel NimbusKit Attributed Label -->
 
 ![](https://github.com/NimbusKit/attributedlabel/raw/master/docs/gfx/banner.gif "Attributed Label")
 
