@@ -253,7 +253,7 @@ Initial release. Includes:
 Credits
 =======
 
-NIAttributedLabel was extracted from Nimbus 1.2.0 by [Jeff Verkoeyen](http://jeffverkoeyen.com/) ([@featherless](http://twitter.com/)).
+NIAttributedLabel was extracted from Nimbus 1.2.0 by [Jeff Verkoeyen](http://jeffverkoeyen.com/) ([featherless](http://twitter.com/)).
 
 Contributors
 ------------
