@@ -233,7 +233,7 @@ text color) can be added to just a range of text.
 ```
 
 Requirements
-------------
+============
 
 NIAttributedLabel must be compiled with the iOS 6 SDK or above. You must link to the CoreText and Core Graphics frameworks.
 

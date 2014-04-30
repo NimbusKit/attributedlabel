@@ -7,6 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 // All macros #ifndef'd so that they can be individually overwritten if necessary.
 
@@ -468,7 +469,7 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
 #pragma mark Current Version
 
 #ifndef NIMBUSKIT_BASICS_VERSION
-#define NIMBUSKIT_BASICS_VERSION NIMBUSKIT_BASICS_1_2_0
+#define NIMBUSKIT_BASICS_VERSION NIMBUSKIT_BASICS_1_2_1
 #endif
 
 #endif // #ifndef _NIMBUSKIT_BASICS_H_
@@ -487,11 +488,15 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
 #define NIMBUSKIT_BASICS_1_2_0 10200
 #endif
 
+#ifndef NIMBUSKIT_BASICS_1_2_1
+#define NIMBUSKIT_BASICS_1_2_1 10201
+#endif
+
 #pragma mark Version Check
 
 #ifndef NI_SUPPRESS_VERSION_WARNINGS
 
-  #if NIMBUSKIT_BASICS_VERSION < NIMBUSKIT_BASICS_1_2_0
+  #if NIMBUSKIT_BASICS_VERSION < NIMBUSKIT_BASICS_1_2_1
 
     // These macros allow us to inline C-strings with macro values.
     #ifndef NI_MACRO_DEFER
@@ -504,7 +509,7 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
     #define NI_MACRO_INLINE_STR(str) NI_MACRO_DEFER(NI_MACRO_STR, str)
     #endif
 
-    #pragma message "An older version (" NI_MACRO_INLINE_STR(NIMBUSKIT_BASICS_VERSION) ") of NimbusKit's Basics was imported prior to this version (" NI_MACRO_INLINE_STR(NIMBUSKIT_BASICS_1_2_0) "). This may cause unexpected behavior. You may suppress this warning by defining NI_SUPPRESS_VERSION_WARNINGS"
+    #pragma message "An older version (" NI_MACRO_INLINE_STR(NIMBUSKIT_BASICS_VERSION) ") of NimbusKit's Basics was imported prior to this version (" NI_MACRO_INLINE_STR(NIMBUSKIT_BASICS_1_2_1) "). This may cause unexpected behavior. You may suppress this warning by defining NI_SUPPRESS_VERSION_WARNINGS"
 
   #endif // NIMBUSKIT_BASICS_VERSION check
 
@@ -528,7 +533,7 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  * @param msg A C-string explaining the deprecation. Used in the message
  *            "<selector> is deprecated: %s".
  * @fn #NI_DEPRECATED_METHOD(msg)
- * @ingroup Macros
+ * @ingroup NimbusKitBasics
  */
 
 /**
@@ -538,7 +543,7 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  * This macro can only be specified on a single initializer.
  *
  * @fn #NI_DESIGNATED_INITIALIZER
- * @ingroup Macros
+ * @ingroup NimbusKitBasics
  */
 
 /**
@@ -556,7 +561,7 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  * See http://developer.apple.com/library/mac/#qa/qa2006/qa1490.html for more info.
  *
  * @fn #NI_FIX_CATEGORY_BUG(name)
- * @ingroup Macros
+ * @ingroup NimbusKitBasics
  */
 
 /**
@@ -572,28 +577,28 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  * bits in \p flag are set on \p value. This macro simplifies that check.
  *
  * @fn #NI_IS_FLAG_SET(value, flag)
- * @ingroup Macros
+ * @ingroup NimbusKitBasics
  */
 
 /**
  * Creates an opaque UIColor object from a byte-value color definition.
  *
  * @fn #NI_RGBCOLOR(r,g,b)
- * @ingroup Macros
+ * @ingroup NimbusKitBasics
  */
 
 /**
  * Creates a UIColor object from a byte-value color definition and alpha transparency.
  *
  * @fn #NI_RGBACOLOR(r,g,b,a)
- * @ingroup Macros
+ * @ingroup NimbusKitBasics
  */
 
 /**
  * Creates an opaque UIColor object from a hex color definition of the form 0xRRGGBB.
  *
  * @fn #NI_HEXCOLOR(hex)
- * @ingroup Macros
+ * @ingroup NimbusKitBasics
  */
 
 /**
@@ -601,7 +606,7 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  * transparency.
  *
  * @fn #NI_HEXACOLOR(hex,a)
- * @ingroup Macros
+ * @ingroup NimbusKitBasics
  */
 
 /** @name Querying the Debugger State */
@@ -610,7 +615,7 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  * Returns a Boolean value indicating whether or not a debugger is attached to the process.
  *
  * @fn NIIsInDebugger()
- * @ingroup DebuggingTools
+ * @ingroup NimbusKitBasics
  */
 
 /** @name Debug Assertions */
@@ -625,7 +630,7 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  * your target's preprocessor macros.
  *
  * @fn #NI_DASSERT(xx)
- * @ingroup DebuggingTools
+ * @ingroup NimbusKitBasics
  */
 
 /** @name Debug Logging */
@@ -637,14 +642,14 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  * It is used by all of the other logging methods in Nimbus' debugging library.
  *
  * @fn #NI_DPRINT(xx, ...)
- * @ingroup DebuggingTools
+ * @ingroup NimbusKitBasics
  */
 
 /**
  * Write the containing method's name to the log using NI_DPRINT.
  *
  * @fn #NI_DPRINTMETHODNAME()
- * @ingroup DebuggingTools
+ * @ingroup NimbusKitBasics
  */
 
 /**
@@ -654,7 +659,7 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  * families of logs.
  *
  * @fn #NI_DCONDITIONLOG(condition, xx, ...)
- * @ingroup DebuggingTools
+ * @ingroup NimbusKitBasics
  */
 
 /** @name Querying the Hardware */
@@ -664,7 +669,7 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  *
  * @returns YES if the device is an iPad.
  * @fn NIIsPad()
- * @ingroup SDKAvailability
+ * @ingroup NimbusKitBasics
  */
 
 /**
@@ -673,21 +678,21 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  *
  * @returns YES if the device is an iPhone or iPod touch.
  * @fn NIIsPhone()
- * @ingroup SDKAvailability
+ * @ingroup NimbusKitBasics
  */
 
 /**
  * Returns the screen's scale.
  *
  * @fn NIScreenScale()
- * @ingroup SDKAvailability
+ * @ingroup NimbusKitBasics
  */
 
 /**
  * Returns YES if the screen is a retina display, NO otherwise.
  *
  * @fn NIIsRetina()
- * @ingroup SDKAvailability
+ * @ingroup NimbusKitBasics
  */
 
 /** @name Determining Feature Support */
@@ -701,7 +706,7 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  * tintColor was introduced in iOS 7 as a global mechanism for changing tint color in an app.
  *
  * @fn NITintColorForViewWithFallback(UIView* view, UIColor* fallbackColor)
- * @ingroup SDKAvailability
+ * @ingroup NimbusKitBasics
  */
 
 /**
@@ -714,5 +719,5 @@ CG_INLINE BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
  *
  * @param versionNumber  Any value of kCFCoreFoundationVersionNumber.
  * @fn NIDeviceOSVersionIsAtLeast(double versionNumber)
- * @ingroup SDKAvailability
+ * @ingroup NimbusKitBasics
  */
