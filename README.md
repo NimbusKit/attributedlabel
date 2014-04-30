@@ -19,10 +19,10 @@ iOS 6 introduced supported for attributed text via `attributedText` but it still
 
 If you do not need any of these features then you should consider simply using UILabel.
 
-Adding it to your App
----------------------
+Adding it to your Project
+=========================
 
-Drag all of the files from the `src` directory into your app and then import the library header.
+Drag all of the files from the `src` directory into your project and then import the library header.
 
 ```objc
 #import "NimbusKitAttributedLabel.h"
