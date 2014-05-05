@@ -40,6 +40,7 @@
 		66A3E0FE191002F70094A9B6 /* NimbusKitBasics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NimbusKitBasics.h; sourceTree = "<group>"; };
 		66A3E108191008260094A9B6 /* BasicInstantiationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicInstantiationViewController.h; sourceTree = "<group>"; };
 		66A3E109191008260094A9B6 /* BasicInstantiationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BasicInstantiationViewController.m; sourceTree = "<group>"; };
+		66AB557E191756000010FDCC /* NimbusKit-AttributedLabel.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; name = "NimbusKit-AttributedLabel.podspec"; path = "../../NimbusKit-AttributedLabel.podspec"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +60,7 @@
 		66A3E0BB191002AD0094A9B6 = {
 			isa = PBXGroup;
 			children = (
+				66AB557E191756000010FDCC /* NimbusKit-AttributedLabel.podspec */,
 				66A3E0F6191002CD0094A9B6 /* attributedlabel */,
 				66A3E0CD191002AD0094A9B6 /* BasicInstantiation */,
 				66A3E0C6191002AD0094A9B6 /* Frameworks */,
