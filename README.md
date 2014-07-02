@@ -1,6 +1,6 @@
-<!--dox @defgroup NimbusKitAttributedLabel NimbusKit Attributed Label -->
+<!--dox @defgroup NimbusKitAttributedLabel Attributed Label -->
 
-![](https://github.com/NimbusKit/attributedlabel/raw/master/docs/gfx/banner.gif "Attributed Label")
+![](https://github.com/NimbusKit/attributedlabel/raw/master/docs/gfx/banner.gif "")
 
 <div id="github" feature="attributedlabel"></div>
 
