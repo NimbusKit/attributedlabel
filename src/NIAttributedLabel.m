@@ -1377,13 +1377,15 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
     }
   }
 
-  // Add this label's text as the "bottom-most" accessibility element, i.e. the last element in the
-  // array. This gives link priorities.
   UIAccessibilityElement* element = [[UIAccessibilityElement alloc] initWithAccessibilityContainer:self];
   element.accessibilityLabel = self.attributedText.string;
   element.accessibilityFrame = [self convertRect:self.bounds toView:self.window];
   element.accessibilityTraits = UIAccessibilityTraitNone;
-  [accessibleElements addObject:element];
+  if (_shouldSortLinksLast) {
+    [accessibleElements insertObject:element atIndex:0];
+  } else {
+    [accessibleElements addObject:element];
+  }
 
   _accessibleElements = [accessibleElements copy];
   return _accessibleElements;
