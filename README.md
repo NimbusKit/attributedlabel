@@ -258,7 +258,9 @@ NIAttributedLabel was extracted from Nimbus 1.2.0 by [Jeff Verkoeyen](http://jef
 Contributors
 ------------
 
-You can be the first! [Open a pull request now](https://github.com/NimbusKit/Basics/compare/).
+- [fluidsonic](https://github.com/fluidsonic)
+
+Add yourself when contributing! [Open a pull request now](https://github.com/NimbusKit/Basics/compare/).
 
 License
 =======

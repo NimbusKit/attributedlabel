@@ -117,7 +117,7 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
 
 @property (nonatomic) CTFrameRef textFrame; // CFType, manually managed lifetime, see setter.
 
-@property (assign)            BOOL detectingLinks; // Atomic.
+@property (atomic, strong)    id   runningLinkDetection;
 @property (nonatomic)         BOOL linksHaveBeenDetected;
 @property (nonatomic, copy)   NSArray*        detectedlinkLocations;
 @property (nonatomic, strong) NSMutableArray* explicitLinkLocations;
@@ -272,6 +272,7 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
 
     // Clear the link caches.
     self.detectedlinkLocations = nil;
+    self.runningLinkDetection = nil;
     self.linksHaveBeenDetected = NO;
     [self removeAllExplicitLinks];
 
@@ -532,9 +533,9 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
   }
 }
 
-- (NSArray *)_matchesFromAttributedString:(NSString *)string {
+- (NSArray *)_matchesFromAttributedString:(NSString *)string textCheckingTypes:(NSTextCheckingTypes)textCheckingTypes {
   NSError* error = nil;
-  NSDataDetector* linkDetector = [NSDataDetector dataDetectorWithTypes:(NSTextCheckingTypes)self.dataDetectorTypes
+  NSDataDetector* linkDetector = [NSDataDetector dataDetectorWithTypes:textCheckingTypes
                                                                  error:&error];
   NSRange range = NSMakeRange(0, string.length);
 
@@ -542,15 +543,21 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
 }
 
 - (void)_deferLinkDetection {
-  if (!self.detectingLinks) {
-    self.detectingLinks = YES;
-
+  if (self.runningLinkDetection == nil) {
     NSString* string = [self.mutableAttributedString.string copy];
+    NSTextCheckingTypes textCheckingTypes = (NSTextCheckingTypes)self.dataDetectorTypes;
+
+    self.runningLinkDetection = string;
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      NSArray* matches = [self _matchesFromAttributedString:string];
-      self.detectingLinks = NO;
+      NSArray* matches = [self _matchesFromAttributedString:string textCheckingTypes:textCheckingTypes];
 
       dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.runningLinkDetection != string) {
+          // link detection was cancelled
+          return;
+        }
+
         self.detectedlinkLocations = matches;
         self.linksHaveBeenDetected = YES;
 
@@ -572,7 +579,7 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
       [self _deferLinkDetection];
 
     } else {
-      self.detectedlinkLocations = [self _matchesFromAttributedString:self.mutableAttributedString.string];
+      self.detectedlinkLocations = [self _matchesFromAttributedString:self.mutableAttributedString.string textCheckingTypes:(NSTextCheckingTypes)self.dataDetectorTypes];
       self.linksHaveBeenDetected = YES;
     }
   }
