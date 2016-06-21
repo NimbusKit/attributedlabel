@@ -111,7 +111,11 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
 
 @end
 
+#ifdef IF_IOS8_OR_GREATER
+@interface NIAttributedLabel()
+#else
 @interface NIAttributedLabel() <UIActionSheetDelegate>
+#endif
 
 @property (nonatomic, strong) NSMutableAttributedString* mutableAttributedString;
 
@@ -923,76 +927,178 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
   [self setNeedsDisplay];
 }
 
-- (UIActionSheet *)actionSheetForResult:(NSTextCheckingResult *)result {
-  UIActionSheet* actionSheet =
-  [[UIActionSheet alloc] initWithTitle:nil
-                              delegate:self
-                     cancelButtonTitle:nil
-                destructiveButtonTitle:nil
-                     otherButtonTitles:nil];
-
-  NSString* title = nil;
-  if (NSTextCheckingTypeLink == result.resultType) {
-    if ([result.URL.scheme isEqualToString:@"mailto"]) {
-      title = result.URL.resourceSpecifier;
-      [actionSheet addButtonWithTitle:NSLocalizedString(@"Open in Mail", @"")];
-      [actionSheet addButtonWithTitle:NSLocalizedString(@"Copy Email Address", @"")];
-
+#ifdef IF_IOS8_OR_GREATER
+-(UIAlertController *)alertControllerForResult:(NSTextCheckingResult *)result {
+    UIAlertController *alertController = [[UIAlertController alloc] init];
+    
+    NSString* title = nil;
+    if (NSTextCheckingTypeLink == result.resultType) {
+        if ([result.URL.scheme isEqualToString:@"mailto"]) {
+            title = result.URL.resourceSpecifier;
+            
+            UIAlertAction *mail = [UIAlertAction actionWithTitle:NSLocalizedString(@"Open in Mail", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [[UIApplication sharedApplication] openURL:self.actionSheetLink.URL];
+            }];
+            UIAlertAction *copy = [UIAlertAction actionWithTitle:NSLocalizedString(@"Copy Email Address", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [[UIPasteboard generalPasteboard] setString:self.actionSheetLink.URL.resourceSpecifier];
+            }];
+            
+            [alertController addAction:mail];
+            [alertController addAction:copy];
+        } else {
+            title = result.URL.absoluteString;
+            
+            UIAlertAction *link = [UIAlertAction actionWithTitle:NSLocalizedString(@"Open in Safari", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [[UIApplication sharedApplication] openURL:self.actionSheetLink.URL];
+            }];
+            UIAlertAction *copy = [UIAlertAction actionWithTitle:NSLocalizedString(@"Copy URL", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [[UIPasteboard generalPasteboard] setURL:self.actionSheetLink.URL];
+            }];
+            
+            [alertController addAction:link];
+            [alertController addAction:copy];
+        }
+        
+    } else if (NSTextCheckingTypePhoneNumber == result.resultType) {
+        title = result.phoneNumber;
+        
+        UIAlertAction *phone = [UIAlertAction actionWithTitle:NSLocalizedString(@"Call", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[@"tel:" stringByAppendingString:self.actionSheetLink.phoneNumber]]];
+        }];
+        UIAlertAction *copy = [UIAlertAction actionWithTitle:NSLocalizedString(@"Copy Phone Number", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [[UIPasteboard generalPasteboard] setString:self.actionSheetLink.phoneNumber];
+        }];
+        
+        [alertController addAction:phone];
+        [alertController addAction:copy];
+        
+    } else if (NSTextCheckingTypeAddress == result.resultType) {
+        title = [self.mutableAttributedString.string substringWithRange:self.actionSheetLink.range];
+        
+        NSString* address = [self.mutableAttributedString.string substringWithRange:self.actionSheetLink.range];
+        UIAlertAction *phone = [UIAlertAction actionWithTitle:NSLocalizedString(@"Open in Maps", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[[@"http://maps.google.com/maps?q=" stringByAppendingString:address] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+        }];
+        UIAlertAction *copy = [UIAlertAction actionWithTitle:NSLocalizedString(@"Copy Address", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [[UIPasteboard generalPasteboard] setString:address];
+        }];
+        
+        [alertController addAction:phone];
+        [alertController addAction:copy];
+        
     } else {
-      title = result.URL.absoluteString;
-      [actionSheet addButtonWithTitle:NSLocalizedString(@"Open in Safari", @"")];
-      [actionSheet addButtonWithTitle:NSLocalizedString(@"Copy URL", @"")];
+        // This type has not been implemented yet.
+        NI_DASSERT(NO);
+        NSString* text = [self.mutableAttributedString.string substringWithRange:self.actionSheetLink.range];
+        UIAlertAction *copy = [UIAlertAction actionWithTitle:NSLocalizedString(@"Copy", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [[UIPasteboard generalPasteboard] setString:text];
+        }];
+        [alertController addAction:copy];
     }
-
-  } else if (NSTextCheckingTypePhoneNumber == result.resultType) {
-    title = result.phoneNumber;
-    [actionSheet addButtonWithTitle:NSLocalizedString(@"Call", @"")];
-    [actionSheet addButtonWithTitle:NSLocalizedString(@"Copy Phone Number", @"")];
-
-  } else if (NSTextCheckingTypeAddress == result.resultType) {
-    title = [self.mutableAttributedString.string substringWithRange:self.actionSheetLink.range];
-    [actionSheet addButtonWithTitle:NSLocalizedString(@"Open in Maps", @"")];
-    [actionSheet addButtonWithTitle:NSLocalizedString(@"Copy Address", @"")];
-
-  } else {
-    // This type has not been implemented yet.
-    NI_DASSERT(NO);
-    [actionSheet addButtonWithTitle:NSLocalizedString(@"Copy", @"")];
-  }
-  actionSheet.title = title;
-
-  if (!NIIsPad()) {
-    [actionSheet setCancelButtonIndex:[actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")]];
-  }
-
-  return actionSheet;
+    
+    alertController.title = title;
+    
+    if (!NIIsPad()) {
+        
+        UIAlertAction *cancel = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        }];
+        [alertController addAction:cancel];
+        //        [actionSheet setCancelButtonIndex:[actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")]];
+    }
+    
+    return alertController;
 }
+#else
+- (UIActionSheet *)actionSheetForResult:(NSTextCheckingResult *)result {
+    UIActionSheet* actionSheet =
+    [[UIActionSheet alloc] initWithTitle:nil
+                                delegate:self
+                       cancelButtonTitle:nil
+                  destructiveButtonTitle:nil
+                       otherButtonTitles:nil];
+    
+    NSString* title = nil;
+    if (NSTextCheckingTypeLink == result.resultType) {
+        if ([result.URL.scheme isEqualToString:@"mailto"]) {
+            title = result.URL.resourceSpecifier;
+            [actionSheet addButtonWithTitle:NSLocalizedString(@"Open in Mail", @"")];
+            [actionSheet addButtonWithTitle:NSLocalizedString(@"Copy Email Address", @"")];
+            
+        } else {
+            title = result.URL.absoluteString;
+            [actionSheet addButtonWithTitle:NSLocalizedString(@"Open in Safari", @"")];
+            [actionSheet addButtonWithTitle:NSLocalizedString(@"Copy URL", @"")];
+        }
+        
+    } else if (NSTextCheckingTypePhoneNumber == result.resultType) {
+        title = result.phoneNumber;
+        [actionSheet addButtonWithTitle:NSLocalizedString(@"Call", @"")];
+        [actionSheet addButtonWithTitle:NSLocalizedString(@"Copy Phone Number", @"")];
+        
+    } else if (NSTextCheckingTypeAddress == result.resultType) {
+        title = [self.mutableAttributedString.string substringWithRange:self.actionSheetLink.range];
+        [actionSheet addButtonWithTitle:NSLocalizedString(@"Open in Maps", @"")];
+        [actionSheet addButtonWithTitle:NSLocalizedString(@"Copy Address", @"")];
+        
+    } else {
+        // This type has not been implemented yet.
+        NI_DASSERT(NO);
+        [actionSheet addButtonWithTitle:NSLocalizedString(@"Copy", @"")];
+    }
+    actionSheet.title = title;
+    
+    if (!NIIsPad()) {
+        [actionSheet setCancelButtonIndex:[actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")]];
+    }
+    
+    return actionSheet;
+}
+#endif
 
 - (void)_longPressTimerDidFire:(NSTimer *)timer {
-  self.longPressTimer = nil;
+    self.longPressTimer = nil;
+    
+    if (nil != self.touchedLink) {
+        self.actionSheetLink = self.touchedLink;
 
-  if (nil != self.touchedLink) {
-    self.actionSheetLink = self.touchedLink;
-
-    UIActionSheet* actionSheet = [self actionSheetForResult:self.actionSheetLink];
-
-    BOOL shouldPresent = YES;
-    if ([self.delegate respondsToSelector:@selector(attributedLabel:shouldPresentActionSheet:withTextCheckingResult:atPoint:)]) {
-      // Give the delegate the opportunity to not show the action sheet or to present its own.
-      shouldPresent = [self.delegate attributedLabel:self shouldPresentActionSheet:actionSheet withTextCheckingResult:self.touchedLink atPoint:self.touchPoint];
+#ifdef IF_IOS8_OR_GREATER
+        UIAlertController *alertController = [self alertControllerForResult:self.actionSheetLink];
+        
+        BOOL shouldPresent = YES;
+        if ([self.delegate respondsToSelector:@selector(attributedLabel:shouldPresentAlertController:withTextCheckingResult:atPoint:)]) {
+            shouldPresent = [self.delegate attributedLabel:self shouldPresentAlertController:alertController withTextCheckingResult:self.touchedLink atPoint:self.touchPoint];
+        }
+        
+        if (shouldPresent) {
+            UIViewController *vc = nil;
+            if ([self.delegate respondsToSelector:@selector(attributedLabel:controllerToPresentAlertController:)]){
+                vc = [self.delegate attributedLabel:self controllerToPresentAlertController:alertController];
+            }
+            [vc presentViewController:alertController animated:true completion:nil];
+        }else{
+            self.actionSheetLink = nil;
+        }
+#else
+        UIActionSheet* actionSheet = [self actionSheetForResult:self.actionSheetLink];
+        
+        BOOL shouldPresent = YES;
+        if ([self.delegate respondsToSelector:@selector(attributedLabel:shouldPresentActionSheet:withTextCheckingResult:atPoint:)]) {
+            // Give the delegate the opportunity to not show the action sheet or to present its own.
+            shouldPresent = [self.delegate attributedLabel:self shouldPresentActionSheet:actionSheet withTextCheckingResult:self.touchedLink atPoint:self.touchPoint];
+        }
+        
+        if (shouldPresent) {
+            if (NIIsPad()) {
+                [actionSheet showFromRect:CGRectMake(self.touchPoint.x - 22, self.touchPoint.y - 22, 44, 44) inView:self animated:YES];
+            } else {
+                [actionSheet showInView:self];
+            }
+            
+        } else {
+            self.actionSheetLink = nil;
+        }
+#endif
     }
-
-    if (shouldPresent) {
-      if (NIIsPad()) {
-        [actionSheet showFromRect:CGRectMake(self.touchPoint.x - 22, self.touchPoint.y - 22, 44, 44) inView:self animated:YES];
-      } else {
-        [actionSheet showInView:self];
-      }
-
-    } else {
-      self.actionSheetLink = nil;
-    }
-  }
 }
 
 - (void)_applyLinkStyleWithResults:(NSArray *)results toAttributedString:(NSMutableAttributedString *)attributedString {
@@ -1409,6 +1515,8 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
 
 #pragma mark - UIActionSheetDelegate
 
+#ifdef IF_IOS8_OR_GREATER
+#else
 - (void)actionSheet:(UIActionSheet*)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
   if (NSTextCheckingTypeLink == self.actionSheetLink.resultType) {
     if (buttonIndex == 0) {
@@ -1417,7 +1525,7 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
     } else if (buttonIndex == 1) {
       if ([self.actionSheetLink.URL.scheme isEqualToString:@"mailto"]) {
         [[UIPasteboard generalPasteboard] setString:self.actionSheetLink.URL.resourceSpecifier];
-
+ 
       } else {
         [[UIPasteboard generalPasteboard] setURL:self.actionSheetLink.URL];
       }
@@ -1456,6 +1564,7 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
   self.actionSheetLink = nil;
   [self setNeedsDisplay];
 }
+#endif
 
 #pragma mark - Inline Image Support
 
