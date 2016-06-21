@@ -129,6 +129,8 @@ extern NSString* const NIAttributedLabelLinkAttributeName; // Value is an NSText
  */
 - (void)attributedLabel:(NIAttributedLabel *)attributedLabel didSelectTextCheckingResult:(NSTextCheckingResult *)result atPoint:(CGPoint)point;
 
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 8000
 /**
  * Asks the receiver whether an action sheet should be displayed at the given point.
  *
@@ -147,6 +149,27 @@ extern NSString* const NIAttributedLabelLinkAttributeName; // Value is an NSText
  *               displayed.
  */
 - (BOOL)attributedLabel:(NIAttributedLabel *)attributedLabel shouldPresentActionSheet:(UIActionSheet *)actionSheet withTextCheckingResult:(NSTextCheckingResult *)result atPoint:(CGPoint)point;
+#else
+/**
+ * Asks the receiver whether an alert controller should be displayed at the given point.
+ *
+ * If this method is not implemented by the receiver then @c alertController will always be displayed if it can.
+ *
+ * @c alertController will be populated with actions that match the data type that was selected. For
+ * example, a link will have the actions "Open in Safari" and "Copy URL". A phone number will have
+ * @"Call" and "Copy Phone Number".
+ *
+ * @param attributedLabel An attributed label asking the delegate whether to display the action
+ *                             sheet.
+ * @param alertController The alert controller that will be displayed if YES is returned.
+ * @param result The data detector result that was selected.
+ * @param point The point within @c attributedLabel where the result was tapped.
+ * @returns YES if @c alertController should be displayed. NO if @c alertController should not be
+ *               displayed.
+ */
+- (BOOL)attributedLabel:(NIAttributedLabel *)attributedLabel shouldPresentAlertController:(UIAlertController *)alertController withTextCheckingResult:(NSTextCheckingResult *)result atPoint:(CGPoint)point;
+-(UIViewController*)attributedLabel:(NIAttributedLabel *)attributedLabel controllerToPresentAlertController:(UIAlertController *)alertController;
+#endif
 
 @end
 

@@ -85,10 +85,19 @@
 
 #pragma mark - NIAttributedLabelDelegate
 
-- (void)attributedLabel:(NIAttributedLabel *)attributedLabel didSelectTextCheckingResult:(NSTextCheckingResult *)result atPoint:(CGPoint)point {
-  if (result.resultType == NSTextCheckingTypeLink) {
-    [[UIApplication sharedApplication] openURL:result.URL];
-  }
-}
+//- (void)attributedLabel:(NIAttributedLabel *)attributedLabel didSelectTextCheckingResult:(NSTextCheckingResult *)result atPoint:(CGPoint)point {
+//  if (result.resultType == NSTextCheckingTypeLink) {
+//    [[UIApplication sharedApplication] openURL:result.URL];
+//  }
+//}
 
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 8000
+#else
+- (BOOL)attributedLabel:(NIAttributedLabel *)attributedLabel shouldPresentAlertController:(UIAlertController *)alertController withTextCheckingResult:(NSTextCheckingResult *)result atPoint:(CGPoint)point{
+    return true;
+}
+-(UIViewController*)attributedLabel:(NIAttributedLabel *)attributedLabel controllerToPresentAlertController:(UIAlertController *)alertController{
+    return self;
+}
+#endif
 @end
