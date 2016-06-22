@@ -85,10 +85,16 @@
 
 #pragma mark - NIAttributedLabelDelegate
 
-- (void)attributedLabel:(NIAttributedLabel *)attributedLabel didSelectTextCheckingResult:(NSTextCheckingResult *)result atPoint:(CGPoint)point {
-  if (result.resultType == NSTextCheckingTypeLink) {
-    [[UIApplication sharedApplication] openURL:result.URL];
-  }
+#ifdef IF_IOS8_OR_GREATER
+- (BOOL)attributedLabel:(NIAttributedLabel *)attributedLabel shouldPresentAlertController:(UIAlertController *)alertController withTextCheckingResult:(NSTextCheckingResult *)result atPoint:(CGPoint)point{
+    return true;
 }
-
+-(UIViewController*)attributedLabel:(NIAttributedLabel *)attributedLabel controllerToPresentAlertController:(UIAlertController *)alertController{
+    return self;
+}
+#else
+- (BOOL)attributedLabel:(NIAttributedLabel *)attributedLabel shouldPresentActionSheet:(UIActionSheet *)actionSheet withTextCheckingResult:(NSTextCheckingResult *)result atPoint:(CGPoint)point{
+    return true;
+}
+#endif
 @end
