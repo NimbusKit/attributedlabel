@@ -70,6 +70,7 @@ extern NSString* const NIAttributedLabelLinkAttributeName; // Value is an NSText
 @property (nonatomic) BOOL                autoDetectLinks;    // Default: NO
 @property (nonatomic) NSTextCheckingType  dataDetectorTypes;  // Default: NSTextCheckingTypeLink
 @property (nonatomic) BOOL                deferLinkDetection; // Default: NO
+@property (nonatomic) BOOL                linkShortTouch; // Default: NO
 
 - (void)addLink:(NSURL *)urlLink range:(NSRange)range;
 - (void)removeAllExplicitLinks; // Removes all links that were added by addLink:range:. Does not remove autodetected links.
