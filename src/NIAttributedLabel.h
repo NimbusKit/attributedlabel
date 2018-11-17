@@ -106,6 +106,7 @@ extern NSString* const NIAttributedLabelLinkAttributeName; // Value is an NSText
 - (void)insertImage:(UIImage *)image atIndex:(NSInteger)index margins:(UIEdgeInsets)margins verticalTextAlignment:(NIVerticalTextAlignment)verticalTextAlignment;
 
 - (void)invalidateAccessibleElements;
+- (CGRect)textdataSize:(NSString *)string withContentWidth:(CGFloat)size fontsize:(CGFloat)font weight:(UIFontWeight)weight;
 
 @property (nonatomic, weak) IBOutlet id<NIAttributedLabelDelegate> delegate;
 @end

@@ -1526,6 +1526,37 @@ CGFloat NIImageDelegateGetWidthCallback(void* refCon) {
   [self.images addObject:labelImage];
 }
 
+- (CGRect)textdataSize:(NSString *)string withContentWidth:(CGFloat)size fontsize:(CGFloat)font weight:(UIFontWeight)weight {
+    CGSize maximumTextViewSize = CGSizeMake(size, CGFLOAT_MAX);
+    NSStringDrawingOptions options = NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading;
+    UIFont *uifont = [UIFont fontWithName:@"AppleSDGothicNeo-Regular" size:font];
+    
+    // Get text
+    CFMutableAttributedStringRef attrString = CFAttributedStringCreateMutable(kCFAllocatorDefault, 0);
+    CFAttributedStringReplaceString (attrString, CFRangeMake(0, 0), (CFStringRef) string );
+    CFIndex stringLength = CFStringGetLength((CFStringRef) attrString);
+    
+    // Change font
+    CTFontRef ctFont = CTFontCreateWithName((__bridge CFStringRef) uifont.fontName, uifont.pointSize, NULL);
+    CFAttributedStringSetAttribute(attrString, CFRangeMake(0, stringLength), kCTFontAttributeName, ctFont);
+    
+    // Calc the size
+    CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attrString);
+    CFRange fitRange;
+    CGSize frameSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), NULL, maximumTextViewSize, &fitRange);
+    
+    CFRelease(ctFont);
+    CFRelease(framesetter);
+    CFRelease(attrString);
+    
+    CGRect textViewBounds = [string boundingRectWithSize:maximumTextViewSize
+                                                 options:options
+                                              attributes:@{NSFontAttributeName:uifont}
+                                                 context:nil];
+    textViewBounds.size = frameSize;
+    return textViewBounds;
+}
+
 @end
 
 @implementation NIAttributedLabel (ConversionUtilities)
