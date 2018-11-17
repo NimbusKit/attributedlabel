@@ -873,15 +873,17 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString* attributedS
     // If the user moves their finger within the link beyond a certain gutter amount, reset the
     // hold timer. The user must hold their finger still for the long press interval in order for
     // the long press action to fire.
-    if (fabs(self.touchPoint.x - point.x) >= kLongPressGutter
-        || fabs(self.touchPoint.y - point.y) >= kLongPressGutter) {
-      [self.longPressTimer invalidate];
-      self.longPressTimer = nil;
-      if (nil != self.touchedLink) {
-        self.longPressTimer = [NSTimer scheduledTimerWithTimeInterval:kLongPressTimeInterval target:self selector:@selector(_longPressTimerDidFire:) userInfo:nil repeats:NO];
-        self.touchPoint = point;
+      if ((self.linkShortTouch && self.touchPoint.x - point.x >= 0 ) ||
+          (self.linkShortTouch && self.touchPoint.y - point.y >= 0 )){
+          if (nil != self.touchedLink && nil != self.originalLink) {
+              [[UIApplication sharedApplication] openURL:self.originalLink.URL options:@{} completionHandler:nil];
+          }
+      }else if (fabs(self.touchPoint.x - point.x) >= kLongPressGutter
+                || fabs(self.touchPoint.y - point.y) >= kLongPressGutter) {
+          if (nil != self.touchedLink) {
+              self.touchPoint = point;
+          }
       }
-    }
   } else {
     [super touchesMoved:touches withEvent:event];
   }
@@ -1522,6 +1524,37 @@ CGFloat NIImageDelegateGetWidthCallback(void* refCon) {
     self.images = [NSMutableArray array];
   }
   [self.images addObject:labelImage];
+}
+
+- (CGRect)textdataSize:(NSString *)string withContentWidth:(CGFloat)size fontsize:(CGFloat)font weight:(UIFontWeight)weight {
+    CGSize maximumTextViewSize = CGSizeMake(size, CGFLOAT_MAX);
+    NSStringDrawingOptions options = NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading;
+    UIFont *uifont = [UIFont fontWithName:@"AppleSDGothicNeo-Regular" size:font];
+    
+    // Get text
+    CFMutableAttributedStringRef attrString = CFAttributedStringCreateMutable(kCFAllocatorDefault, 0);
+    CFAttributedStringReplaceString (attrString, CFRangeMake(0, 0), (CFStringRef) string );
+    CFIndex stringLength = CFStringGetLength((CFStringRef) attrString);
+    
+    // Change font
+    CTFontRef ctFont = CTFontCreateWithName((__bridge CFStringRef) uifont.fontName, uifont.pointSize, NULL);
+    CFAttributedStringSetAttribute(attrString, CFRangeMake(0, stringLength), kCTFontAttributeName, ctFont);
+    
+    // Calc the size
+    CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attrString);
+    CFRange fitRange;
+    CGSize frameSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), NULL, maximumTextViewSize, &fitRange);
+    
+    CFRelease(ctFont);
+    CFRelease(framesetter);
+    CFRelease(attrString);
+    
+    CGRect textViewBounds = [string boundingRectWithSize:maximumTextViewSize
+                                                 options:options
+                                              attributes:@{NSFontAttributeName:uifont}
+                                                 context:nil];
+    textViewBounds.size = frameSize;
+    return textViewBounds;
 }
 
 @end
